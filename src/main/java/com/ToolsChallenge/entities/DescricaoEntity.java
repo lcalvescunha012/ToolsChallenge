@@ -1,6 +1,8 @@
 package com.ToolsChallenge.entities;
 
+import com.ToolsChallenge.enums.StatusPagamento;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,6 +21,7 @@ public class DescricaoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_descricao_pagamento")
+    @JsonIgnore
     private long id;
 
     @Column(nullable = false)
@@ -39,4 +42,7 @@ public class DescricaoEntity {
     @Column(name = "codigo_autorizacao", nullable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String codigoAutorizacao;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private StatusPagamento statusPagamento;
 }

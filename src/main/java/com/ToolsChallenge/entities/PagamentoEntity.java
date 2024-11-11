@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 public class PagamentoEntity {
 
     @Id
-    private String id;
+    @Column(nullable = false, unique = true)
+    private long id;
 
     private String cartao;
 

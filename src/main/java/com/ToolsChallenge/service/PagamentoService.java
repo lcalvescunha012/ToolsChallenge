@@ -4,15 +4,21 @@ import com.ToolsChallenge.dto.PagamentoDTO;
 import com.ToolsChallenge.entities.DescricaoEntity;
 import com.ToolsChallenge.entities.FormaPagamentoEntity;
 import com.ToolsChallenge.entities.PagamentoEntity;
+import com.ToolsChallenge.enums.StatusPagamento;
 import com.ToolsChallenge.mappers.PagamentoMapper;
 import com.ToolsChallenge.repository.DescricaoRepository;
 import com.ToolsChallenge.repository.FormaPagamentoRepository;
 import com.ToolsChallenge.repository.PagamentoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,35 +32,47 @@ public class PagamentoService {
     private final PagamentoMapper pagamentoMapper;
 
     @Transactional
-    public PagamentoDTO realizarPagamento(PagamentoDTO pagamento) {
+    public PagamentoDTO realizarPagamento(PagamentoDTO pagamentoDTO) {
 
-        DescricaoEntity descricao = pagamento.descricao();
-        descricao = salvaDescricao(descricao);
+        try {
+            // Verifica se o ID já existe
+            if (pagamentoRepository.existsById(pagamentoDTO.id())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Pagamento com ID " + pagamentoDTO.id() + " já existe.");
+            }
 
-        FormaPagamentoEntity formaPagamento = pagamento.formaPagamento();
-        formaPagamento = salvarFormaPagamento(formaPagamento);
+            DescricaoEntity descricao = pagamentoDTO.descricao();
+            descricao = salvaDescricao(descricao, StatusPagamento.AUTORIZADO.name());
 
-        PagamentoEntity pagamentoEntity = pagamentoMapper.toEntity(pagamento);
-        pagamentoEntity.setDescricao(descricao);
-        pagamentoEntity.setFormaPagamento(formaPagamento);
+            FormaPagamentoEntity formaPagamento = pagamentoDTO.formaPagamento();
+            formaPagamento = salvarFormaPagamento(formaPagamento);
 
-        // Salva o pagamento e mapeia para DTO
-        var entidade = pagamentoMapper.toEntity(pagamento);
-        var salvo = pagamentoRepository.save(entidade);
+            PagamentoEntity pagamentoEntity = pagamentoMapper.toEntity(pagamentoDTO);
+            pagamentoEntity.setDescricao(descricao);
+            pagamentoEntity.setFormaPagamento(formaPagamento);
 
-        return pagamentoMapper.toDto(salvo);
+            PagamentoEntity retornoPagamento = pagamentoRepository.save(pagamentoEntity);
+
+            return pagamentoMapper.toDto(retornoPagamento);
+
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dados inválidos fornecidos no pagamento.", e);
+        } catch (DataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao acessar o banco de dados durante a realização do pagamento.", e);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado durante a realização do pagamento.", e);
+        }
     }
 
 
-
-    private DescricaoEntity salvaDescricao(DescricaoEntity descricao) {
+    private DescricaoEntity salvaDescricao(DescricaoEntity descricao, String status) {
 
         // Gera valores únicos para NSU e código de autorização se não forem informados
         atualizarValoresUnicos(descricao);
 
+        atualizarStatusPagamento(descricao, status);
+
         return descricaoRepository.save(descricao);
     }
-
 
     private void atualizarValoresUnicos(DescricaoEntity descricao) {
         // Gera um NSU único se não for fornecido
@@ -68,10 +86,10 @@ public class PagamentoService {
         }
     }
 
-    private String formataUUID(String string, int i) {
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        String numero = uuid.replaceAll("[^0-9]", "");
-        return numero.length() > i ? numero.substring(0, i) : numero;
+    private String formataUUID(String uuidToReplace, int i) {
+        String uuid = uuidToReplace.replace("-", "");
+        String uuidReplaced = uuid.replaceAll("[^0-9]", "");
+        return uuidReplaced.length() > i ? uuidReplaced.substring(0, i) : uuidReplaced;
     }
 
     private FormaPagamentoEntity salvarFormaPagamento(FormaPagamentoEntity formaPagamento) {
@@ -79,4 +97,46 @@ public class PagamentoService {
         return formaPagamentoRepository.save(formaPagamento);
     }
 
+
+    private void atualizarStatusPagamento(DescricaoEntity descricao, String status) {
+        try {
+            StatusPagamento statusPagamento = StatusPagamento.valueOf(status);
+
+            // Atualiza o status de pagamento se ainda não estiver definido
+            if (descricao.getStatusPagamento() == null || descricao.getStatusPagamento().toString().isBlank()) {
+                descricao.setStatusPagamento(statusPagamento);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Valor diferente de AUTORIZADO/NEGADO/CANCELADO.");
+        }
+    }
+
+    public PagamentoDTO realizarEstorno(long id) {
+        PagamentoEntity pagamentoEntity;
+        DescricaoEntity descricaoEntity;
+        PagamentoDTO pagamentoDTO;
+
+        try {
+            pagamentoEntity = pagamentoRepository.getReferenceById(id);
+            descricaoEntity = descricaoRepository.getReferenceById(pagamentoEntity.getDescricao().getId());
+
+            salvaDescricao(descricaoEntity, StatusPagamento.CANCELADO.name());
+
+            pagamentoEntity.setDescricao(descricaoEntity);
+            pagamentoDTO = pagamentoMapper.toDto(pagamentoEntity);
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Houve problema com o " + id + " para realizar o estorno.", e);
+        }
+
+        return pagamentoDTO;
+    }
+
+    public Collection<PagamentoDTO> finaAll() {
+        return pagamentoRepository.findAll().stream().map(pagamentoMapper::toDto).collect(Collectors.toList());
+    }
+
+    public PagamentoDTO findById(long id) {
+        return pagamentoMapper.toDto(pagamentoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pagamento " + id + " não encontrado.")));
+    }
 }
