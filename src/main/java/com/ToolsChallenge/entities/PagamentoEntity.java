@@ -16,6 +16,7 @@ public class PagamentoEntity {
     @Column(nullable = false, unique = true)
     private long id;
 
+    @Column(nullable = false)
     private String cartao;
 
     @OneToOne
