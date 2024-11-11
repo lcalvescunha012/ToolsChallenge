@@ -101,11 +101,8 @@ public class PagamentoService {
     private void atualizarStatusPagamento(DescricaoEntity descricao, String status) {
         try {
             StatusPagamento statusPagamento = StatusPagamento.valueOf(status);
-
-            // Atualiza o status de pagamento se ainda não estiver definido
-            if (descricao.getStatusPagamento() == null || descricao.getStatusPagamento().toString().isBlank()) {
-                descricao.setStatusPagamento(statusPagamento);
-            }
+            
+            descricao.setStatusPagamento(statusPagamento);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Valor diferente de AUTORIZADO/NEGADO/CANCELADO.");
         }
