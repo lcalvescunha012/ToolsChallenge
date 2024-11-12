@@ -1,4 +1,4 @@
-package com.ToolsChallenge.controller;
+package com.toolschallenge.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

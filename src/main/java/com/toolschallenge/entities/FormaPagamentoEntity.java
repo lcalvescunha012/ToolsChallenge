@@ -1,7 +1,7 @@
-package com.ToolsChallenge.entities;
+package com.toolschallenge.entities;
 
-import com.ToolsChallenge.enums.TipoPagamento;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.toolschallenge.enums.TipoPagamento;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

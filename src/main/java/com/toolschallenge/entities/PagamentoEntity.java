@@ -1,4 +1,4 @@
-package com.ToolsChallenge.entities;
+package com.toolschallenge.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

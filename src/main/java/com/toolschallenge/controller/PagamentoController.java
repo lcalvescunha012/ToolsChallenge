@@ -1,7 +1,7 @@
-package com.ToolsChallenge.controller;
+package com.toolschallenge.controller;
 
-import com.ToolsChallenge.dto.PagamentoDTO;
-import com.ToolsChallenge.service.PagamentoService;
+import com.toolschallenge.dto.PagamentoDTO;
+import com.toolschallenge.service.PagamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -34,12 +34,12 @@ public class PagamentoController {
     @Operation(description = "Retorna a lista de todos os pagamentos realizados.")
     @GetMapping
     public ResponseEntity<Collection<PagamentoDTO>> findAll() {
-        return ResponseEntity.ok(pagamentoService.finaAll());
+        return ResponseEntity.ok(pagamentoService.bucarTodosPagamentos());
     }
 
-    @Operation(description = "Retorna o pagamentos realizado.")
+    @Operation(description = "Retorna o pagamento realizado.")
     @GetMapping("/{id}")
     public ResponseEntity<PagamentoDTO> findById(@PathVariable long id) {
-        return ResponseEntity.ok(pagamentoService.findById(id));
+        return ResponseEntity.ok(pagamentoService.buscarPagamentoID(id));
     }
 }

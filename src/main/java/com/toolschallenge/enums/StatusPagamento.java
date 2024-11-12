@@ -1,4 +1,4 @@
-package com.ToolsChallenge.enums;
+package com.toolschallenge.enums;
 
 public enum StatusPagamento {
     AUTORIZADO,

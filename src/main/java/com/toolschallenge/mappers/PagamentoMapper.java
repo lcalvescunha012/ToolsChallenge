@@ -1,7 +1,7 @@
-package com.ToolsChallenge.mappers;
+package com.toolschallenge.mappers;
 
-import com.ToolsChallenge.dto.PagamentoDTO;
-import com.ToolsChallenge.entities.PagamentoEntity;
+import com.toolschallenge.dto.PagamentoDTO;
+import com.toolschallenge.entities.PagamentoEntity;
 import org.springframework.stereotype.Component;
 
 @Component

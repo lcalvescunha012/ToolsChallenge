@@ -1,7 +1,6 @@
-package com.ToolsChallenge.repository;
+package com.toolschallenge.repository;
 
-import com.ToolsChallenge.entities.DescricaoEntity;
-import com.ToolsChallenge.entities.PagamentoEntity;
+import com.toolschallenge.entities.DescricaoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

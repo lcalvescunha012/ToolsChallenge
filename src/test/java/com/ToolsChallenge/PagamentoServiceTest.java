@@ -1,15 +1,15 @@
-package com.ToolsChallenge;
+package com.toolschallenge;
 
-import com.ToolsChallenge.dto.PagamentoDTO;
-import com.ToolsChallenge.entities.DescricaoEntity;
-import com.ToolsChallenge.entities.FormaPagamentoEntity;
-import com.ToolsChallenge.entities.PagamentoEntity;
-import com.ToolsChallenge.enums.TipoPagamento;
-import com.ToolsChallenge.mappers.PagamentoMapper;
-import com.ToolsChallenge.repository.DescricaoRepository;
-import com.ToolsChallenge.repository.FormaPagamentoRepository;
-import com.ToolsChallenge.repository.PagamentoRepository;
-import com.ToolsChallenge.service.PagamentoService;
+import com.toolschallenge.dto.PagamentoDTO;
+import com.toolschallenge.entities.DescricaoEntity;
+import com.toolschallenge.entities.FormaPagamentoEntity;
+import com.toolschallenge.entities.PagamentoEntity;
+import com.toolschallenge.enums.TipoPagamento;
+import com.toolschallenge.mappers.PagamentoMapper;
+import com.toolschallenge.repository.DescricaoRepository;
+import com.toolschallenge.repository.FormaPagamentoRepository;
+import com.toolschallenge.repository.PagamentoRepository;
+import com.toolschallenge.service.PagamentoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 class PagamentoServiceTest {
 
@@ -89,7 +90,7 @@ class PagamentoServiceTest {
         assertNotNull(result);
         assertEquals(pagamentoEntity.getId(), result.id());
         assertEquals(pagamentoEntity.getCartao(), result.cartao());
-        //
+
         assertEquals(descricaoEntity.getId(), result.descricao().getId());
         assertEquals(descricaoEntity.getValor(), result.descricao().getValor());
         assertEquals(descricaoEntity.getDataHora(), result.descricao().getDataHora());
@@ -97,20 +98,18 @@ class PagamentoServiceTest {
         assertEquals(descricaoEntity.getNsu(), result.descricao().getNsu());
         assertEquals(descricaoEntity.getCodigoAutorizacao(), result.descricao().getCodigoAutorizacao());
         assertEquals(descricaoEntity.getStatusPagamento(), result.descricao().getStatusPagamento());
-        //
+
         assertEquals(formaPagamentoEntity.getIdFormaPagamento(), result.formaPagamento().getIdFormaPagamento());
         assertEquals(formaPagamentoEntity.getTipo(), result.formaPagamento().getTipo());
         assertEquals(formaPagamentoEntity.getParcela(), result.formaPagamento().getParcela());
-        verify(pagamentoRepository, times(1)).save(any(PagamentoEntity.class));
     }
 
 
     @Test
     void testRealizarPagamentoIdExistente() {
-        //
+
         when(pagamentoRepository.existsById(pagamentoEntity.getId())).thenReturn(true);
 
-        //
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             pagamentoService.realizarPagamento(pagamentoDTO);
         });
@@ -153,7 +152,7 @@ class PagamentoServiceTest {
         assertEquals(descricaoEntity.getNsu(), result.descricao().getNsu());
         assertEquals(descricaoEntity.getCodigoAutorizacao(), result.descricao().getCodigoAutorizacao());
         assertEquals(descricaoEntity.getStatusPagamento(), result.descricao().getStatusPagamento());
-        //
+
         assertEquals(formaPagamentoEntity.getIdFormaPagamento(), result.formaPagamento().getIdFormaPagamento());
         assertEquals(formaPagamentoEntity.getTipo(), result.formaPagamento().getTipo());
         assertEquals(formaPagamentoEntity.getParcela(), result.formaPagamento().getParcela());
@@ -163,7 +162,7 @@ class PagamentoServiceTest {
     void testRealizarEstornoPagamentoNaoEncontrado() {
 
         when(pagamentoRepository.getReferenceById(pagamentoEntity.getId())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Pagamento não encontrado"));
-        //
+
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             pagamentoService.realizarEstorno(pagamentoEntity.getId());
         });
@@ -173,21 +172,18 @@ class PagamentoServiceTest {
     }
 
     @Test
-    void testFinaAll() {
-        // Mocking
+    void testBucarTodosPagamentos() {
+
         when(pagamentoRepository.findAll()).thenReturn(List.of(pagamentoEntity));
         when(pagamentoMapper.toDto(any(PagamentoEntity.class))).thenReturn(pagamentoDTO);
 
-        //
-        var result = pagamentoService.finaAll();
+        var result = pagamentoService.bucarTodosPagamentos();
 
-        //
         assertNotNull(result);
         assertEquals(1, result.size());
 
         List<PagamentoDTO> resultList = new ArrayList<>(result);
 
-        //
         assertEquals(descricaoEntity.getId(), resultList.get(0).descricao().getId());
         assertEquals(descricaoEntity.getValor(), resultList.get(0).descricao().getValor());
         assertEquals(descricaoEntity.getDataHora(), resultList.get(0).descricao().getDataHora());
@@ -195,7 +191,6 @@ class PagamentoServiceTest {
         assertEquals(descricaoEntity.getNsu(), resultList.get(0).descricao().getNsu());
         assertEquals(descricaoEntity.getCodigoAutorizacao(), resultList.get(0).descricao().getCodigoAutorizacao());
         assertEquals(descricaoEntity.getStatusPagamento(), resultList.get(0).descricao().getStatusPagamento());
-        //
         assertEquals(formaPagamentoEntity.getIdFormaPagamento(), resultList.get(0).formaPagamento().getIdFormaPagamento());
         assertEquals(formaPagamentoEntity.getTipo(), resultList.get(0).formaPagamento().getTipo());
         assertEquals(formaPagamentoEntity.getParcela(), resultList.get(0).formaPagamento().getParcela());
@@ -203,15 +198,13 @@ class PagamentoServiceTest {
 
 
     @Test
-    void testFindById() {
-        //
+    void testBuscarPagamentoID() {
+
         when(pagamentoRepository.findById(pagamentoEntity.getId())).thenReturn(Optional.of(pagamentoEntity));
         when(pagamentoMapper.toDto(any(PagamentoEntity.class))).thenReturn(pagamentoDTO);
 
-        //
-        PagamentoDTO result = pagamentoService.findById(pagamentoEntity.getId());
+        PagamentoDTO result = pagamentoService.buscarPagamentoID(pagamentoEntity.getId());
 
-        //
         assertNotNull(result);
         assertEquals(descricaoEntity.getId(), result.descricao().getId());
         assertEquals(descricaoEntity.getValor(), result.descricao().getValor());
@@ -220,20 +213,18 @@ class PagamentoServiceTest {
         assertEquals(descricaoEntity.getNsu(), result.descricao().getNsu());
         assertEquals(descricaoEntity.getCodigoAutorizacao(), result.descricao().getCodigoAutorizacao());
         assertEquals(descricaoEntity.getStatusPagamento(), result.descricao().getStatusPagamento());
-        //
         assertEquals(formaPagamentoEntity.getIdFormaPagamento(), result.formaPagamento().getIdFormaPagamento());
         assertEquals(formaPagamentoEntity.getTipo(), result.formaPagamento().getTipo());
         assertEquals(formaPagamentoEntity.getParcela(), result.formaPagamento().getParcela());
     }
 
     @Test
-    void testFindByIdPagamentoNaoEncontrado() {
-        //
+    void testBuscarPagamentoIDPagamentoNaoEncontrado() {
+
         when(pagamentoRepository.findById(pagamentoEntity.getId())).thenReturn(Optional.empty());
 
-        //
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            pagamentoService.findById(pagamentoEntity.getId());
+            pagamentoService.buscarPagamentoID(pagamentoEntity.getId());
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());

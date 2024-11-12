@@ -1,9 +1,9 @@
-package com.ToolsChallenge.entities;
+package com.toolschallenge.entities;
 
-import com.ToolsChallenge.enums.StatusPagamento;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.toolschallenge.enums.StatusPagamento;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
