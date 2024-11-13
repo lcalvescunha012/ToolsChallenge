@@ -33,13 +33,13 @@ public class PagamentoController {
 
     @Operation(description = "Retorna a lista de todos os pagamentos realizados.")
     @GetMapping
-    public ResponseEntity<Collection<PagamentoDTO>> findAll() {
+    public ResponseEntity<Collection<PagamentoDTO>> bucarTodosPagamentos() {
         return ResponseEntity.ok(pagamentoService.bucarTodosPagamentos());
     }
 
     @Operation(description = "Retorna o pagamento realizado.")
     @GetMapping("/{id}")
-    public ResponseEntity<PagamentoDTO> findById(@PathVariable long id) {
+    public ResponseEntity<PagamentoDTO> buscarPagamentoID(@PathVariable long id) {
         return ResponseEntity.ok(pagamentoService.buscarPagamentoID(id));
     }
 }
