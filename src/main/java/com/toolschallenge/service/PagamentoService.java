@@ -1,5 +1,6 @@
 package com.toolschallenge.service;
 
+
 import com.toolschallenge.dto.PagamentoDTO;
 import com.toolschallenge.entities.DescricaoEntity;
 import com.toolschallenge.entities.FormaPagamentoEntity;
@@ -25,7 +26,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PagamentoService {
-
     public static final int LENGHT_NSU = 10;
     public static final int LENGHT_COD_AUTO = 9;
     private final PagamentoRepository pagamentoRepository;
@@ -179,7 +179,7 @@ public class PagamentoService {
         return pagamentoRepository.findAll().stream().map(pagamentoMapper::toDto).collect(Collectors.toList());
     }
 
-    public PagamentoDTO buscarPagamentoID(long id) {
+    public PagamentoDTO buscarPagamentoID(final long id) {
         return pagamentoMapper.toDto(pagamentoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pagamento " + id + " não encontrado.")));
     }
 }
